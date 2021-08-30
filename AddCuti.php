@@ -2,49 +2,49 @@
     include "koneksi.php";
 
     $StaffId = isset($_POST['StaffId']) ? $_POST['StaffId'] : '';
-    $JatahCuti = isset($_POST['JatahCuti']) ? $_POST['JatahCuti'] : '';
-    $IzinCuti = isset($_POST['IzinCuti']) ? $_POST['IzinCuti'] : '';
     $AlasanIzinCuti = isset($_POST['AlasanIzinCuti']) ? $_POST['AlasanIzinCuti'] : '';
-    $BuktiIzinCuti = isset($_POST['BuktiIzinCuti']) ? $_POST['BuktiIzinCuti'] : '';
     $MulaiCuti = isset($_POST['MulaiCuti']) ? $_POST['MulaiCuti'] : '';
     $SelesaiCuti = isset($_POST['SelesaiCuti']) ? $_POST['SelesaiCuti'] : '';
+    $total = (int)isset($_POST['total']) ? $_POST['total'] : '';
+    
+    if($total == 0){
+        $total += 1;
+    }
+    
+    try {
+        $MulaiCutiFormat = DateTime::createFromFormat('d/m/Y', $MulaiCuti)->format('Y-m-d');
+        $SelesaiCutiFormat = DateTime::createFromFormat('d/m/Y', $SelesaiCuti)->format('Y-m-d');
 
-    $MulaiCutiFormat = date('YYYY-mm-dd', strtotime($MulaiCuti));
-    $SelesaiCutiFormat = date('YYYY-mm-dd', strtotime($SelesaiCuti));
-
-    $sql = "INSERT INTO cuti(
+        $sql = "INSERT INTO cuti(
                 StaffId,
-                JatahCuti,
                 IzinCuti,
                 AlasanIzinCuti,
-                BuktiIzinCuti,
                 MulaiCuti,
-                SelesaiCuti 
+                SelesaiCuti
                 )
                 VALUES (
                 '$StaffId',
-                '$JatahCuti',
-                '$IzinCuti',
+                1,
                 '$AlasanIzinCuti',
-                '$BuktiIzinCuti',
                 '$MulaiCutiFormat',
                 '$SelesaiCutiFormat'
             )";
-
-    try {
+            
+        $sql_update = "UPDATE staff SET JatahCuti = JatahCuti-$total WHERE StaffId = '$StaffId'";
+        
         $conn->query($sql);
         if ($conn->affected_rows > 0) {
+            $conn->query($sql_update);
             $response["success"] = "1";
             $response["message"] = "Leaves Request created successfully";
-            echo json_encode($response);            
+            echo json_encode($response);
         } else {
             $response["success"] = "0";
             $response["message"] = "Failed to Add Leaves Request";
-            echo json_encode($response);        
+            echo json_encode($response);
         }
     } catch (\Throwable $th) {
         echo "Error :" . $th;
     }
-
     $conn->close();
 ?>

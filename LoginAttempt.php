@@ -1,17 +1,17 @@
 <?php
     include "koneksi.php";
-
-    $username = $_POST['username'] ? $_POST['username'] : '';
-    $password = $_POST['password'] ? $_POST['password'] : '';
-    $ipnumber = $_POST['ipnumber'] ? $_POST['ipnumber'] : '';
-    $long = $_POST['long'] ? $_POST['long'] : '';
-    $lat = $_POST['lat'] ? $_POST['lat'] : '';
+    
+    $username = isset($_POST['username']) ? $_POST['username'] : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
+    $ipnumber = isset($_POST['ipnumber']) ? $_POST['ipnumber'] : '';
+    $lat = isset($_POST['lat']) ? $_POST['lat'] : '';
+    $long = isset($_POST['long']) ? $_POST['long'] : '';
 
     $sql = "INSERT INTO loginattempt(
                 Username,
                 Password,
                 IPNumber,
-                Longtitude,
+                Longitude,
                 Latitude
             ) 
             VALUES (
@@ -22,7 +22,7 @@
                 '$lat'
             )";
     try {
-        $conn->query($sql);        
+        $conn->query($sql);
     } catch (\Throwable $th) {
         echo "Error : ".$th;
     }

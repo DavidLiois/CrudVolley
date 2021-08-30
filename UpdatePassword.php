@@ -1,19 +1,16 @@
 <?php 
 	include "koneksi.php";
 
-	$StaffId = $_POST['staffid'];
-    $password = $_POST['password'];
-    $passwordQ = $_POST['passwordq'];
-    $passwordA = $_POST['passworda'];
+	$username = isset($_POST['username']) ? $_POST['username'] : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
 
 	$password_hash = password_hash($password, PASSWORD_DEFAULT);	
 
-	$sql = "UPDATE password SET                 
-                PasswordAnswer = '$passwordA',
-                PasswordQuestion = '$passwordQ',
-				Password = '$password_hash',
-                ModifiedDate = CURRENT_TIMESTAMP
-            WHERE StaffId='$StaffId'
+	$sql = "UPDATE password 
+	        JOIN staff ON password.StaffId = staff.StaffId 
+	        SET password.Password = '$password_hash',
+	            password.ModifiedDate = CURRENT_TIMESTAMP
+	        WHERE staff.Username = '$username';
             ";	
 	try {
 		$conn->query($sql);
@@ -26,7 +23,7 @@
 			$response["success"] = "0";
 			$response["message"] = "Error updating password";
 			echo json_encode($response);
-		}	
+		}
 	} catch (\Throwable $th) {
 		echo "Error : ".$th;
 	}

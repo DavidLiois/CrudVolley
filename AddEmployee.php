@@ -1,24 +1,41 @@
 <?php 
 	include "koneksi.php";
 
-	$jabatan = $_POST['jabatan'];
-	$divisi = $_POST['divisi'];
-	$username = $_POST['username'];
-	$fullname = $_POST['fullname'];
-	$jeniskelamin = $_POST['jeniskelamin'];
-	$pob = $_POST['pob'];
-	$dob = $_POST['dob'];
-	$alamat = $_POST['alamat'];
-	$email = $_POST['email'];
-	$phonenumber = $_POST['phonenumber'];
-	$password = $_POST['password'];
+	$jabatan = isset($_POST['jabatan']) ? $_POST['jabatan'] : '';
+	$divisi = isset($_POST['divisi']) ? $_POST['divisi'] : '';
+	$username = isset($_POST['username']) ? $_POST['username'] : '';
+	$fullname = isset($_POST['fullname']) ? $_POST['fullname'] : '';
+	$jeniskelamin = isset($_POST['jeniskelamin']) ? $_POST['jeniskelamin'] : '';
+	$pob = isset($_POST['pob']) ? $_POST['pob'] : '';
+	$dob = isset($_POST['dob']) ? $_POST['dob'] : '';
+	$alamat = isset($_POST['alamat']) ? $_POST['alamat'] : '';
+	$email = isset($_POST['email']) ? $_POST['email'] : '';
+	$phonenumber = isset($_POST['phonenumber']) ? $_POST['phonenumber'] : '';
+	$password = isset($_POST['password']) ? $_POST['password'] : '';
 
 	$password_hash = password_hash($password, PASSWORD_DEFAULT);
 	$dob_format = DateTime::createFromFormat('d/m/Y', $dob)->format('Y-m-d');
 		
-	$sql_search = "SELECT Username,PhoneNumber,Email FROM staff WHERE staff.Username = '$username' OR staff.Email = '$email' OR staff.PhoneNumber = '$phonenumber'";
+	$sql_search = "SELECT 
+						Username,PhoneNumber,Email 
+					FROM staff 
+					WHERE staff.Username = '$username' 
+					OR staff.Email = '$email' 
+					OR staff.PhoneNumber = '$phonenumber'";
 
-	$sql = "CALL sign_up(
+	$sql = "INSERT INTO staff(
+				Jabatan,
+				Divisi,
+				Username,
+				Fullname,
+				JenisKelamin,
+				PlaceOfBirth,
+				DateOfBirth,
+				Alamat,
+				Email,
+				PhoneNumber,
+				ModifiedDate
+			) VALUES(
 				'$jabatan',
 				'$divisi',
 				'$username', 
@@ -29,7 +46,18 @@
 				'$alamat',
 				'$email',
 				'$phonenumber',
-				'$password_hash');";
+				CURRENT_TIMESTAMP
+			)";
+			
+	$sql_password = "INSERT INTO password(
+        				StaffId,
+        				Password,
+        				ModifiedDate
+        			) VALUES (
+        				(SELECT StaffId FROM staff WHERE Username = '$username'),
+        				'$password_hash',
+        				CURRENT_TIMESTAMP
+        			)";
 	
 	try {
 		$search = $conn->query($sql_search);
@@ -55,6 +83,7 @@
 		else{
 			$conn->query($sql);
 			if ($conn->affected_rows > 0) {
+			    $conn->query($sql_password);
 				$response["success"] = "1";
 				$response["message"] = "New employee profile created successfully";
 				echo json_encode($response);

@@ -1,18 +1,12 @@
 <?php
   include "koneksi.php";
 
-  $StaffId = isset($_POST['StaffId']);
+  $username = isset($_POST['username']) ? $_POST['username'] : '';
 
-  $sql = "DELETE staff, presensi, cuti, password
-          FROM staff
-          JOIN presensi ON staff.StaffId = presensi.StaffId
-          JOIN cuti ON staff.StaffId = cuti.StaffId
-          JOIN password ON staff.StaffId = password.StaffId
-          WHERE staff.StaffId = 5;          
-          ";
+  $sql = "DELETE FROM staff WHERE Username = '$username'";
 
   try {
-    $conn->query($sql);
+    $conn->query($sql);  
     if ($conn->affected_rows > 0) {
       $response["success"] = "1";
       $response["message"] = "Record deleted successfully";
@@ -20,8 +14,8 @@
     } 
     else {
       $response["success"] = "0";
-      $response["message"] = "Error deleting record";
-      echo json_encode($response);      
+      $response["message"] = "Delete Record Failed";
+      echo json_encode($response);
     } 
   } catch (\Throwable $th) {
     echo "Error : ". $th;
